@@ -4,35 +4,26 @@ import "CoreLibs/sprites"
 import "CoreLibs/timer"
 import "CoreLibs/crank"
 import "State/game"
+import "State/menu"
 
 local gfx <const> = playdate.graphics
-local state <const> = { menu, playing, game_over }
-local currentState = state.menu
+State = { menu = 1, playing = 2, game_over =  3}
+State.__index = State
+CurrentState = { State.menu }
+CurrentState.__index = CurrentState
 
 local function gameSetup()
 
-    local shitImage = gfx.image.new('assets/images/shit.png') -- px size 32x32
-    local earthImage = gfx.image.new('assets/images/earth.png') -- px size 32x32
-    local scoreFont = gfx.font.new('assets/fonts/Bitmore-Medieval')
-    assert(shitImage)
-    assert(earthImage)
-    assert(scoreFont)
-
-    local shitSprite = gfx.sprite.new(shitImage)
-    local earthSprite = gfx.sprite.new(earthImage)
-
     -- load font
+    local scoreFont = gfx.font.new('assets/fonts/Bitmore-Medieval')
+    assert(scoreFont)
     gfx.setFont(scoreFont)
 
-    -- add sprites
-    shitSprite:moveTo(20, 40)
-    shitSprite:add()
-    earthSprite:moveTo(380, 40)
-    earthSprite:add()
+    Menu:init()
+    Game:init()
 end
 
 gameSetup()
-Game:init()
 
 -- screen refresh function that execute 30 times/sec
 function playdate.update()
@@ -41,11 +32,11 @@ function playdate.update()
     gfx.sprite.update()
 
     -- menu
-    -- TODO menu logic
-
-    -- game logic
-    Game:start()
-
-    print(Game.score)
-
+    if CurrentState[1] == State.menu then
+    Menu:start()
+    elseif CurrentState[1] == State.playing then
+        Game:start()
+    else
+        -- TODO game_over logic
+    end
 end

@@ -1,4 +1,3 @@
-
 Game = {}
 Game.__index = Game
 
@@ -20,8 +19,6 @@ function Game:start()
     local incrementEarthValue = 0
     local crankTicks = playdate.getCrankTicks(36)
     local second = math.floor(playdate.getCurrentTimeMilliseconds() / 1000) + 1
-
-    gfx.drawText("Score: " .. self.score, 340, 5, 55, 50, gfx.kAlignLeft)
 
     if (gameCycleCanChange and (second %= 5) == 0) then
         self:changeCycle()
@@ -47,9 +44,9 @@ function Game:start()
         if self.earthValue < 0 then self.earthValue = 0 end
         if self.shitValue < 0 then self.shitValue = 0 end
 
-        self:drawBars(self.shitValue, self.earthValue)
+        self:draw(self.shitValue, self.earthValue)
     else
-        self:drawBars(0, 0)
+        self:draw(0, 0)
     end
 
     return self
@@ -68,14 +65,28 @@ function Game:changeCycle()
     end
 end
 
-function Game:drawBars(shitLevel, earthLevel)
+function Game:draw(shitLevel, earthLevel)
+
+    local shitImage = gfx.image.new('assets/images/shit.png') -- px size 32x32
+    local earthImage = gfx.image.new('assets/images/earth.png') -- px size 32x32
+    assert(shitImage)
+    assert(earthImage)
+
+    local shitSprite = gfx.sprite.new(shitImage)
+    local earthSprite = gfx.sprite.new(earthImage)
+
+    -- add sprites
+    shitSprite:moveTo(20, 40)
+    shitSprite:add()
+    earthSprite:moveTo(380, 40)
+    earthSprite:add()
 
     local barWidth, barHeight = 16, 120
     local shitChange = barHeight * (shitLevel / 100)
     local earthChange = barHeight * (earthLevel / 100)
     local screenWidth, screenHeight = playdate.display.getSize()
 
-    -- dray geometrics forms
+    -- draw geometrics forms
     gfx.setLineWidth(1)
     gfx.drawRect(12, 60, barWidth, barHeight)
     gfx.drawRect(screenWidth - 12 - barWidth, 60, barWidth, barHeight)
@@ -94,4 +105,6 @@ function Game:drawBars(shitLevel, earthLevel)
         barWidth,
         -earthChange
     )
+
+    gfx.drawText("Score: " .. self.score, 340, 5, 55, 50, gfx.kAlignLeft)
 end
