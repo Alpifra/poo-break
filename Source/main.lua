@@ -8,14 +8,16 @@ local gfx <const> = playdate.graphics
 
 -- screen size : 400, 240
 local screenWidth, screenHeight = playdate.display.getSize()
-local logoMargin, barMargin = 20, 12
 local shitValue = 0
 local earthValue = 100
 local score = 0
 
-local cycles = { fine = 1, calm = 2, busy = 3, rush = 4 }
-local currentCycle = cycles.fine
-local cycleCanChange = false
+local state = { menu, playing, game_over }
+local currentState = state.menu
+
+local gameCycles = { fine = 1, calm = 2, busy = 3, rush = 4 }
+local currentGameCycle = gameCycles.fine
+local gameCycleCanChange = false
 
 local function gameSetup()
 
@@ -33,11 +35,12 @@ local function gameSetup()
     gfx.setFont(scoreFont)
 
     -- add sprites
-    shitSprite:moveTo(logoMargin, 40)
+    shitSprite:moveTo(20, 40)
     shitSprite:add()
-    earthSprite:moveTo(screenWidth - logoMargin, 40)
+    earthSprite:moveTo(screenWidth - 20, 40)
     earthSprite:add()
 end
+
 gameSetup()
 
 local function drawBars(shitLevel, earthLevel)
@@ -48,23 +51,19 @@ local function drawBars(shitLevel, earthLevel)
 
     -- dray geometrics forms
     gfx.setLineWidth(1)
-    gfx.drawRect(barMargin, 60, barWidth, barHeight)
-    gfx.drawRect(screenWidth - barMargin - barWidth, 60, barWidth, barHeight)
+    gfx.drawRect(12, 60, barWidth, barHeight)
+    gfx.drawRect(screenWidth - 12 - barWidth, 60, barWidth, barHeight)
 
     -- fill bars level
-    gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(barMargin, screenHeight - 60, barWidth, barHeight)
     gfx.setColor(gfx.kColorBlack)
-    -- shit level
     gfx.fillRect(
-        barMargin,
+        12,
         screenHeight - 60,
         barWidth,
         -shitChange
     )
-    -- earth level
     gfx.fillRect(
-        screenWidth - barMargin - barWidth,
+        screenWidth - 12 - barWidth,
         screenHeight - 60,
         barWidth,
         -earthChange
@@ -72,14 +71,14 @@ local function drawBars(shitLevel, earthLevel)
 end
 
 local function changeCycle()
-    if currentCycle == cycles.rush then
-        currentCycle = cycles.calm
-    elseif currentCycle == cycles.busy then
-        currentCycle = cycles.rush
-    elseif currentCycle == cycles.calm then
-        currentCycle = cycles.busy
-    elseif currentCycle == cycles.fine then
-        currentCycle = cycles.calm
+    if currentGameCycle == gameCycles.rush then
+        currentGameCycle = gameCycles.calm
+    elseif currentGameCycle == gameCycles.busy then
+        currentGameCycle = gameCycles.rush
+    elseif currentGameCycle == gameCycles.calm then
+        currentGameCycle = gameCycles.busy
+    elseif currentGameCycle == gameCycles.fine then
+        currentGameCycle = gameCycles.calm
     end
 end
 
@@ -87,9 +86,7 @@ end
 function playdate.update()
 
     -- setup
-    gfx.clear()
     gfx.sprite.update()
-    gfx.drawText("Score:" .. score, 300, 0)
 
     -- game logic
     local incrementShitValue = 0
@@ -97,18 +94,20 @@ function playdate.update()
     local crankTicks = playdate.getCrankTicks(36)
     local second = math.floor(playdate.getCurrentTimeMilliseconds() / 1000) + 1
 
-    if (cycleCanChange and (second %= 5) == 0) then
+    gfx.drawText("Score: " .. score, 340, 5, 55, 50, gfx.kAlignLeft)
+
+    if (gameCycleCanChange and (second %= 5) == 0) then
         changeCycle()
-        cycleCanChange = false
+        gameCycleCanChange = false
     elseif (second %= 5) == 4 then
-        cycleCanChange = true
+        gameCycleCanChange = true
     end
 
     if (shitValue < 100 and earthValue > 0) then
 
         if crankTicks > 0 then crankTicks = 0 end -- only one crank rotation allowed
 
-        incrementShitValue += math.random(0, currentCycle)
+        incrementShitValue += math.random(0, currentGameCycle)
         score += incrementShitValue
         incrementShitValue += crankTicks
         shitValue += incrementShitValue
