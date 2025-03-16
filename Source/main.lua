@@ -33,7 +33,7 @@ function playdate.update()
 
     -- menu
     if CurrentState[1] == State.menu then
-    Menu:start()
+        -- TODO back to menu
     elseif CurrentState[1] == State.playing then
         Game:start()
     else
