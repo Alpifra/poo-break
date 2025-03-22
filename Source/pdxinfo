@@ -1,0 +1,7 @@
+name=Poo Break
+author=Alpif
+bundleID=fr.alexandrechauvin.poo-break
+description=Have a break, have a poo one.
+version=1.0
+buildNumber=1
+imagePath=SystemAssets

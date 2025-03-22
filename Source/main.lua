@@ -16,10 +16,14 @@ local function gameSetup()
 
     -- load font
     local scoreFont = gfx.font.new('assets/fonts/Bitmore-Medieval')
+    local menuFont = gfx.font.new('assets/fonts/font-pixieval')
+    assert(menuFont)
     assert(scoreFont)
-    gfx.setFont(scoreFont)
 
+    gfx.setFont(menuFont)
     Menu:init()
+
+    gfx.setFont(scoreFont)
     Game:init()
 end
 

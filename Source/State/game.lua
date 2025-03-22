@@ -6,20 +6,30 @@ local gameCycles = { fine = 1, calm = 2, busy = 3, rush = 4 }
 
 function Game:init()
 
+    local background = gfx.image.new('assets/images/game-bg.png') -- px size 400x240
+    assert(background)
+
+    local backgroundSprite = gfx.sprite.new(background)
+
+    backgroundSprite:setZIndex(20)
+    backgroundSprite:moveTo(200, 120)
+    backgroundSprite:add()
+
     self.currentGameCycle = gameCycles.fine
     self.gameCycleCanChange = false
     self.shitValue = 0
-    self.earthValue = 100
+    self.paperValue = 100
     self.score = 0
 end
 
 function Game:start()
 
     local incrementShitValue = 0
-    local incrementEarthValue = 0
+    local incrementpaperValue = 0
     local crankTicks = playdate.getCrankTicks(36)
     local second = math.floor(playdate.getCurrentTimeMilliseconds() / 1000) + 1
 
+    -- change cycle logic
     if (gameCycleCanChange and (second %= 5) == 0) then
         self:changeCycle()
         gameCycleCanChange = false
@@ -27,7 +37,8 @@ function Game:start()
         gameCycleCanChange = true
     end
 
-    if (self.shitValue < 100 and self.earthValue > 0) then
+    -- in game logic calculation
+    if (self.shitValue < 100 and self.paperValue > 0) then
 
         if crankTicks > 0 then crankTicks = 0 end -- only one crank rotation allowed
 
@@ -36,15 +47,15 @@ function Game:start()
         incrementShitValue += crankTicks
         self.shitValue += incrementShitValue
 
-        incrementEarthValue += crankTicks / 2
-        incrementEarthValue += 0.6
-        self.earthValue += incrementEarthValue
+        incrementpaperValue += crankTicks / 2
+        incrementpaperValue += 0.6
+        self.paperValue += incrementpaperValue
 
-        if self.earthValue >= 100 then self.earthValue = 100 end
-        if self.earthValue < 0 then self.earthValue = 0 end
+        if self.paperValue >= 100 then self.paperValue = 100 end
+        if self.paperValue < 0 then self.paperValue = 0 end
         if self.shitValue < 0 then self.shitValue = 0 end
 
-        self:draw(self.shitValue, self.earthValue)
+        self:draw(self.shitValue, self.paperValue)
     else
         self:draw(0, 0)
     end
@@ -65,25 +76,28 @@ function Game:changeCycle()
     end
 end
 
-function Game:draw(shitLevel, earthLevel)
+function Game:draw(shitLevel, paperLevel)
 
     local shitImage = gfx.image.new('assets/images/shit.png') -- px size 32x32
-    local earthImage = gfx.image.new('assets/images/earth.png') -- px size 32x32
+    local paperImage = gfx.image.new('assets/images/paper.png') -- px size 32x32
     assert(shitImage)
-    assert(earthImage)
+    assert(paperImage)
 
+    local backgroundSprite = gfx.sprite.new(background)
     local shitSprite = gfx.sprite.new(shitImage)
-    local earthSprite = gfx.sprite.new(earthImage)
+    local paperSprite = gfx.sprite.new(paperImage)
 
     -- add sprites
     shitSprite:moveTo(20, 40)
+    shitSprite:setZIndex(25)
     shitSprite:add()
-    earthSprite:moveTo(380, 40)
-    earthSprite:add()
+    paperSprite:moveTo(380, 40)
+    paperSprite:setZIndex(25)
+    paperSprite:add()
 
-    local barWidth, barHeight = 16, 120
+    local barWidth, barHeight = 16, 110
     local shitChange = barHeight * (shitLevel / 100)
-    local earthChange = barHeight * (earthLevel / 100)
+    local paperChange = barHeight * (paperLevel / 100)
     local screenWidth, screenHeight = playdate.display.getSize()
 
     -- draw geometrics forms
@@ -95,15 +109,15 @@ function Game:draw(shitLevel, earthLevel)
     gfx.setColor(gfx.kColorBlack)
     gfx.fillRect(
         12,
-        screenHeight - 60,
+        screenHeight - 70,
         barWidth,
         -shitChange
     )
     gfx.fillRect(
         screenWidth - 12 - barWidth,
-        screenHeight - 60,
+        screenHeight - 70,
         barWidth,
-        -earthChange
+        -paperChange
     )
 
     gfx.drawText("Score: " .. self.score, 340, 5, 55, 50, gfx.kAlignLeft)
