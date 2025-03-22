@@ -32,6 +32,7 @@ function Menu:init()
 
     local startGameHandler = {
         BButtonDown = function()
+            Score[1] = 0
             CurrentState[1] = State.playing
             pih.pop() -- remove input handlers
             textSprite:remove()

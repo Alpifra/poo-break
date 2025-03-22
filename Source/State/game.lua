@@ -1,3 +1,5 @@
+import "State/game-over"
+
 Game = {}
 Game.__index = Game
 
@@ -7,19 +9,31 @@ local gameCycles = { fine = 1, calm = 2, busy = 3, rush = 4 }
 function Game:init()
 
     local background = gfx.image.new('assets/images/game-bg.png') -- px size 400x240
+    local shitImage = gfx.image.new('assets/images/shit.png') -- px size 32x32
+    local paperImage = gfx.image.new('assets/images/paper.png') -- px size 32x32
     assert(background)
+    assert(shitImage)
+    assert(paperImage)
 
-    local backgroundSprite = gfx.sprite.new(background)
+    self.backgroundSprite = gfx.sprite.new(background)
+    self.shitSprite = gfx.sprite.new(shitImage)
+    self.paperSprite = gfx.sprite.new(paperImage)
 
-    backgroundSprite:setZIndex(20)
-    backgroundSprite:moveTo(200, 120)
-    backgroundSprite:add()
+    -- add sprites
+    self.backgroundSprite:setZIndex(20)
+    self.backgroundSprite:moveTo(200, 120)
+    self.backgroundSprite:add()
+    self.shitSprite:moveTo(20, 40)
+    self.shitSprite:setZIndex(25)
+    self.shitSprite:add()
+    self.paperSprite:moveTo(380, 40)
+    self.paperSprite:setZIndex(25)
+    self.paperSprite:add()
 
     self.currentGameCycle = gameCycles.fine
     self.gameCycleCanChange = false
     self.shitValue = 0
     self.paperValue = 100
-    self.score = 0
 end
 
 function Game:start()
@@ -43,7 +57,7 @@ function Game:start()
         if crankTicks > 0 then crankTicks = 0 end -- only one crank rotation allowed
 
         incrementShitValue += math.random(0, self.currentGameCycle)
-        self.score += incrementShitValue
+        Score[1] += incrementShitValue
         incrementShitValue += crankTicks
         self.shitValue += incrementShitValue
 
@@ -58,6 +72,7 @@ function Game:start()
         self:draw(self.shitValue, self.paperValue)
     else
         self:draw(0, 0)
+        self:over()
     end
 
     return self
@@ -77,23 +92,6 @@ function Game:changeCycle()
 end
 
 function Game:draw(shitLevel, paperLevel)
-
-    local shitImage = gfx.image.new('assets/images/shit.png') -- px size 32x32
-    local paperImage = gfx.image.new('assets/images/paper.png') -- px size 32x32
-    assert(shitImage)
-    assert(paperImage)
-
-    local backgroundSprite = gfx.sprite.new(background)
-    local shitSprite = gfx.sprite.new(shitImage)
-    local paperSprite = gfx.sprite.new(paperImage)
-
-    -- add sprites
-    shitSprite:moveTo(20, 40)
-    shitSprite:setZIndex(25)
-    shitSprite:add()
-    paperSprite:moveTo(380, 40)
-    paperSprite:setZIndex(25)
-    paperSprite:add()
 
     local barWidth, barHeight = 16, 110
     local shitChange = barHeight * (shitLevel / 100)
@@ -120,5 +118,14 @@ function Game:draw(shitLevel, paperLevel)
         -paperChange
     )
 
-    gfx.drawText("Score: " .. self.score, 340, 5, 55, 50, gfx.kAlignLeft)
+    gfx.drawText("Score: " .. Score[1], 340, 5, 55, 50, gfx.kAlignLeft)
+end
+
+function Game:over()
+
+    self.backgroundSprite:remove()
+    self.shitSprite:remove()
+    self.paperSprite:remove()
+    CurrentState[1] = State.game_over
+    GameOver:init()
 end

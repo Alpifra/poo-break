@@ -3,14 +3,17 @@ import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
 import "CoreLibs/crank"
-import "State/game"
 import "State/menu"
+import "State/game"
+import "State/game-over"
 
 local gfx <const> = playdate.graphics
 State = { menu = 1, playing = 2, game_over =  3}
 State.__index = State
 CurrentState = { State.menu }
 CurrentState.__index = CurrentState
+Score = { 0 }
+Score.__index = Score
 
 local function gameSetup()
 
@@ -40,7 +43,7 @@ function playdate.update()
         -- TODO back to menu
     elseif CurrentState[1] == State.playing then
         Game:start()
-    else
-        -- TODO game_over logic
+    else 
+        GameOver:start()
     end
 end
