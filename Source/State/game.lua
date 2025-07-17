@@ -51,6 +51,7 @@ function Game:init()
     self.gameCycleCanChange = false
     self.shitValue = 0
     self.paperValue = 100
+    Score[1] = 0
 
     Game:drawToiletPaper(0, self.currentToiletPaperSprite)
 end
@@ -185,6 +186,11 @@ function Game:over()
     self.backgroundSprite:remove()
     self.shitSprite:remove()
     self.paperSprite:remove()
+
+    for i, toiletPaperSprite in pairs(self.toiletPaperSprites) do
+        self.toiletPaperSprites[i]:remove()
+    end
+
     CurrentState[1] = State.game_over
     GameOver:init()
 end

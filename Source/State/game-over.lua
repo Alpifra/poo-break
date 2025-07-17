@@ -32,24 +32,23 @@ function GameOver:start()
         gfx.drawTextInRect(retryText, 0, 0, retryTextWidth, 50)
     gfx.unlockFocus()
 
-    local scoreTextSprite = gfx.sprite.new(scoreTextImage)
-    local retryTextSprite = gfx.sprite.new(retryTextImage)
-    scoreTextSprite:moveTo(350, 10)
-    scoreTextSprite:setZIndex(15)
-    scoreTextSprite:add()
-    retryTextSprite:moveTo(350, 230)
-    retryTextSprite:setZIndex(15)
-    retryTextSprite:add()
+    if self.scoreTextSprite then self.scoreTextSprite:remove() end
+    if self.retryTextSprite then self.scoreTextSprite:remove() end
+
+    self.scoreTextSprite = gfx.sprite.new(scoreTextImage)
+    self.retryTextSprite = gfx.sprite.new(retryTextImage)
+    self.scoreTextSprite:moveTo(350, 10)
+    self.scoreTextSprite:setZIndex(15)
+    self.scoreTextSprite:add()
+    self.retryTextSprite:moveTo(350, 230)
+    self.retryTextSprite:setZIndex(15)
+    self.retryTextSprite:add()
 
     local startGameHandler = {
         BButtonDown = function()
             CurrentState[1] = State.playing
             pih.pop() -- remove input handlers
             Game:init()
-            -- need to fix the display bug on score
-            scoreTextSprite:remove()
-            retryTextSprite:remove()
-            self.backgroundSprite:remove()
         end
     }
 
